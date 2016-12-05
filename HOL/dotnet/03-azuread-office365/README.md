@@ -50,80 +50,91 @@ This hands-on-lab has the following exercises:
 * Exercise 2: Create a user profile page
 * Exercise 3: Send a confirmation email to the user on incident creation
 
-### Exercise 1: Register the application
+### Note
+> In the hands-on-labs you will be using Visual Studio Solutions. Please do not update the NuGet packages to the latest available, as we have not tested the labs with every potential combination of packages. 
+
+---
+## Exercise 1: Register the application
 
 AzureAD can handle authentication for web applications. First we will create a new application in our AzureAD directory, and then we will extend our application code to work with an authentication flow. 
 
 1.  Open the Visual Studio project file from the `start` folder
 
-    ![image](./media/image-011.png)
+    ![image](./media/image-011.gif)
     
 1. Build the project and press F5 to restore the nuget packages and start IISExpress. This will create the web application with the dynamic port.
 
 1. Stop debugging. Right-click on the project and select `properties`
 
-    ![image](./media/image-012.png)
+    ![image](./media/image-012.gif)
 
     Note the website URL and port, you will need this later.
 
-    ![image](./media/image-024.png)
+    ![image](./media/image-024.gif)
 
 1. Navigate in a browser to [https://apps.dev.microsoft.com](https://apps.dev.microsoft.com), click the button to **Register your app**, and login with your Azure credentials (Work or school Account).
 
-    ![image](./media/image-001.png)
+    ![image](./media/image-001.gif)
 
 1. There are several types of applications that can be registered. The registration of the .NET app is not listed here so skip the quickstart.
 
-    ![image](./media/image-002.png)
+    ![image](./media/image-002.gif)
 
 1. Click **Add an app** from the top menu
     
-    ![image](./media/image-003.png)
+    ![image](./media/image-003.gif)
 
-1. Provide an application name and click **Create Application**
+1. Provide an application name and click `Create Application`
 
-    ![image](./media/image-004.png)
+    ![image](./media/image-004.gif)
 
-1. On the Registration page, take note of the **Application ID**. This will be used as an environment variable named `AAD_CLIENT_ID` and is used to configure the authentication library.  
+1. On the Registration page, take note of the `Application ID`. This will be used as an environment variable named `AAD_CLIENT_ID` and is used to configure the authentication library.  
 
     We also need to generate a client secret. Select the **Generate New Password** button.
 
-    ![image](./media/image-006.png)
+    ![image](./media/image-006.gif)
 
-1. A key is generated for you. Save this, as you will not be able to retrieve it in the future. This key will become the `AAD_CLIENT_SECRET` environment variable.
+1. A key is generated for you. ***Save this***, as you will not be able to retrieve it in the future. This key will become the `AAD_CLIENT_SECRET` environment variable.
 
-    ![image](./media/image-007.png)
+    ![image](./media/image-007.gif)
 
 1. Click on the Add Platform button
 
-    ![image](./media/image-008.png)
+    ![image](./media/image-008.gif)
 
 1. Select Web
 
-    ![image](./media/image-009.png)
+    ![image](./media/image-009.gif)
 
-1. After AzureAD handles the authentication, it needs a location to redirect the user. For testing locally, we'll use the local IISExpress web site `http://localhost:[YOUR LOCAL DYNAMIC PORT]/` as the **Redirect URI** and set the URL as an app setting variable named `AAD_RETURN_URL`. This URL may need to be updated to the IISExpress dynamic port that is generated while debugging. Steps to update this are provided later in the lab.  
+1. After AzureAD handles the authentication, it needs a location to redirect the user. For testing locally, we'll use the local IISExpress web site `http://localhost:[YOUR LOCAL DYNAMIC PORT]/` as the **Redirect URI** and set the URL as an app setting variable named `AAD_RETURN_URL`. This URL may need to be updated to the IISExpress dynamic port that is generated while debugging.  
 
-    ![image](./media/image-010.png)
+    ![image](./media/image-010.gif)
+
+1. We will need to grant our application permission to access resources on our behalf. In the Microsoft Graph Permissions section, select `Add`
+
+    ![image](./media/image-025.gif)  
+
+1. Add the following permissions (you will have to scroll down to find them):
+    * Mail.ReadWrite
+    * Mail.Send
+    * User.Read
+    * User.ReadBasic.All
+
+    ![image](./media/image-026.gif)
+    ![image](./media/image-027.gif)
 
 1. Click the **Save** button on the bottom of the screen.
 
-    ![image](./media/image-017.png)  
+    ![image](./media/image-017.gif)  
 
-1. Open the web.config and update the settings with the values from the app registration screen:
-
+1. In Visual Studio, open `web.config` and update the settings with the values from the app registration screen:
+    For the `AAP_APP_REDIRECTURI` value, enter the local IIS web site URL including the port and an ending `\` Example: `http://localhost:8443/`, 
     ```xml
    <!--HOL 3-->
     <add key="AAD_APP_ID" value="APPID" />
     <add key="AAD_APP_SECRET" value="SECRET" />
     <add key="AAD_APP_REDIRECTURI" value="LOCAL HTTPS IIS WEBSITE" />
     ```
-
-1. Go back to the app registration screen and update the return URL with the new port and click save.
-
-    ![image](./media/image-016.png)
-
-    ![image](./media/image-017.png)
 
 1. In Visual Studio, Add the following packages from nuget:
 
@@ -139,7 +150,7 @@ AzureAD can handle authentication for web applications. First we will create a n
     >
     > `Microsoft.Owin.Host.SystemWeb`
 
-1. We need add code to handle the authentication and and cache the sessions tokens so we don't have to get them all time. Navigate to the Utils folder and create a 2 new helper class files. Create `AuthHelper.cs` and `SessionTokenCache.cs`
+1. We need add code to handle the authentication and cache the sessions tokens so we don't have to get them all time. Navigate to the Utils folder and create two new helper class files. Create `AuthHelper.cs` and `SessionTokenCache.cs`. The corresponding code for these classes will be added later.
 
 1. First let's update the Setting.cs class with the additional constants. Paste these values below the existing entries from HOL2.
 
@@ -309,13 +320,15 @@ AzureAD can handle authentication for web applications. First we will create a n
     }
     ```
 
-1. Right click on the App_Start folder and select **New > OWIN Startup Class**
+1. Right click on the App_Start folder and select **Add > New Item**
 
-    ![image](./media/image-018.png)
+    ![image](./media/image-018.gif)
 
-    > This may be available via right click on `App_Start`, select `Add` > `New Item`, then in the `Add New Item` dialog, choose `Visual C#`/`Web`/`General`, and choose `OWIN Startup Class` in the center pane.
+1. In the `Add New Item` dialog, choose `Visual C#`/`Web`/`General`, and choose `OWIN Startup Class` in the center pane.
 
-1. Name it `Startup`. Once it is created, open the file, paste the following code. This will handle the initial authentication flow and cache the tokens:
+    ![image](./media/image-028.gif)
+
+1. Name it `Startup`. Once the file is created, open it in the editor and paste the following code. This will handle the initial authentication flow and cache the tokens:
 
     ```csharp
     using DevCamp.WebApp.App_Start;
@@ -455,11 +468,11 @@ AzureAD can handle authentication for web applications. First we will create a n
     ```
     #### Before:
 
-    ![image](./media/image-019.png)
+    ![image](./media/image-019.gif)
         
     #### After:
 
-    ![image](./media/image-020.png)
+    ![image](./media/image-020.gif)
 
 1. Add a new controller called `ProfileController` to handle signins
 1. Paste the following:
@@ -547,16 +560,17 @@ AzureAD can handle authentication for web applications. First we will create a n
     > 1. go to the control panel on your machine, programs and features, find `IIS 10.0 Express`.  Right click on it, and choose `repair`.  
     > 1. in Visual Studio, click on the DevCamp.WebApp project in the solution explorer.  In the properties window at the bottom, ensure that `SSL Enabled` is True.  Also make note of the URL and SSL URL: 
     >
-    >       ![image](./media/2016-11-14_16-31-07.png)
+    >![image](./media/2016-11-14_16-31-07.gif)
     > 1. Right-click on the DevCamp.WebApp project in the solution explorer and choose `Properties`.  This should open the properties page in the middle window of Visual Studio.  In the left hand list of pages choose `Web`, and ensure that the Project Url in the center is the SSL URL from above.  Make sure your browsers are closed, then re-run your application.
     
 1. When you login for the first time, you will be prompted to allow permission for the app to access your data. Click Accept
 
-    ![image](./media/image-022.png)
+    ![image](./media/image-022.gif)
 
 1. Click on the `Report Outage` button. The application now behaves differently for anonymous vs. authenticated users, allowing you the developer flexibility in exposing pieces of your application to anonymous audiences while ensuring sensitive content stays protected.
 
-### Exercise 2: Create a user profile page with Graph Data
+---
+## Exercise 2: Create a user profile page with Graph Data
 Next, we are going to create a page to display information about the logged in user.  While AzureAD returns a name and email address, we can query the Microsoft Graph for extended details about a given user.  We will query the Graph for user information.
 
 1. In the `profile` folder, create a new View named `Index.cshtml`. This view will display a set of attributes in a simple table where each row corresponds to an attribute. Paste the following code in the view:
@@ -794,12 +808,12 @@ Next, we are going to create a page to display information about the logged in u
 
     ```
 
-1. Click Save ALL, resolve any missing references and hit F5 to see the resulting profie page. We now have a simple visualization of the current user's profile information as loaded from the Microsoft Graph.
+1. Click Save ALL, resolve any missing references and hit F5 to see the resulting profile page. We now have a simple visualization of the current user's profile information as loaded from the Microsoft Graph.
 
-    ![image](./media/image-021.png)
+    ![image](./media/image-021.gif)
 
-
-### Exercise 3: Interact with the Microsoft Graph
+---
+## Exercise 3: Interact with the Microsoft Graph
 In the previous exercise you read data from the Microsoft Graph, but there are other endpoints can be used for more sophisticated tasks.  In this exercise we will use the Graph to send an email message whenever a new incident is reported.
 
 1. Add a method to `setting.cs` generate the HTML body content for the email. We will be setting 2 placeholders `{0} and {1}` for the first name and last name of the person reporting the incident.
@@ -995,12 +1009,13 @@ In the previous exercise you read data from the Microsoft Graph, but there are o
 
 1. Click save > build and F5 to start debugging. Now when you add a new incident, you should recieve an email.
     
-    ![image](./media/image-023.png)
+    ![image](./media/image-023.gif)
 
 > Note that the reciever is HARD CODED in the `getEmailBodyContent` method. In production, you may have a mailbox account that is common.
 
 Sending this email did not require the setting up of a dedicated email server, but instead leveraged capabilities within the Microsoft Graph.  We could have also created a calendar event, or a task related to the incident for a given user, all via the API.
 
+---
 ## Summary
 Our application can now distinguish between anonymous and authenticated users to ensure flexibility between public and private data.  We are also able to leverage the Microsoft Graph to not only return the user's extended user profile, but to send email confirmations whenever a new incident is created.
 

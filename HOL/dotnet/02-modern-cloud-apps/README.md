@@ -1,7 +1,7 @@
 # Modern Apps hands on lab (.NET)
 
 ## Overview
-City Power & Light is a sample application that allows citizens to to report "incidents" that have occurred in their community. It includes a landing screen, a dashboard, and a form for reporting new incidents with an optional photo. The application is implemented with several components:
+City Power & Light is a sample application that allows citizens to report "incidents" that have occurred in their community. It includes a landing screen, a dashboard, and a form for reporting new incidents with an optional photo. The application is implemented with several components:
 * Front end web application contains the user interface and business logic. This component has been implemented three times in .NET, NodeJS, and Java.
 * WebAPI is shared across the front ends and exposes the backend DocumentDB
 * DocumentDB is used as the data persistence layer 
@@ -11,7 +11,7 @@ This guide use Visual Studio on Windows as the IDE. You can use [Visual Studio c
 
 
 ## Objectives
-In this hands-on lab, you will learn how to:
+In this hands-on-lab, you will learn how to:
 * Use Visual Studio to connect to an API
 * Provision an Azure Web App to host the Web site
 * Modify a view to add caching
@@ -31,24 +31,27 @@ This hands-on-lab has the following exercises:
 * Exercise 2: Add a caching layer
 * Exercise 3: Write images to Azure Blob storage
 
+### Note
+> In the hands-on-labs you will be using Visual Studio Solutions. Please do not update the NuGet packages to the latest available, as we have not tested the labs with every potential combination of packages. 
+
 ---
-### Exercise 1: Integrate the API
+## Exercise 1: Integrate the API
 
 1. You should have performed a `git clone` of the DevCamp repository in the previous hands-on lab.  If you did not, please complete the developer workstation setup in that lab.
 
 1. Open the Visual Studio and navigate to the directory `C:\DevCamp\HOL\dotnet\02-modern-cloud-apps\start`
 
-    ![image](./media/image-01.png)
+    ![image](./media/image-01.gif)
 
 1. Open the DevCamp.SLN solution file
 1. Build the solution by right-clicking on the DevCamp.WebApp project and choosing `build`:
-    ![image](./media/2016-11-14_12-42-51.png)
+    ![image](./media/2016-11-14_12-42-51.gif)
 
     Then run the solution by typing `F5`.
 
     Visual Studio should run IIS Express and launch the application. You should see the home page
 
-    ![image](./media/image-02.png)
+    ![image](./media/image-02.gif)
 
 1. Close the browser and stop debugging
 
@@ -56,49 +59,60 @@ This hands-on-lab has the following exercises:
 
     Select the API app that begins with the name **incidentapi** followed by a random string of characters.
 
-    ![image](./media/image-03.png)
+    ![image](./media/image-03.gif)
 
 1. The window that slides out is called a **blade** and contains information and configuration options for the resource.  
 
     On the top toolbar, select **Browse** to open the API in a new browser window.
 
-    ![image](./media/image-04.png)
+    ![image](./media/image-04.gif)
 
     You should be greeted by the default ASP.NET landing page
     
-    ![image](./media/image-05.png)
+    ![image](./media/image-05.gif)
 
-1. Since we provisioned a new instance of DocumentDB, there are not any records to use as sample data.  To generate sample data, our API has a route that can be hit at any time to reset the documents in our collection.  In the browser, add `/incidents/sampledata` to your API's URL to generate sample documents.
+1. Since we provisioned a new instance of DocumentDB, there are no records to use as sample data. To generate sample data, the shared API has a route that can be hit at any time to reset the documents in your collection.  In the browser, add the following to your API URL to generate sample documents.
+
+    >
+    > Add `/incidents/sampledata` to the end of your API URL. 
+    >
+    > The URL should look like the following:
+    >  
+    > `http://incidentapi[YOUR_RG_NAME].azurewebsites.net/incidents/sampledata`
+    >
+    >
 
 1. After navigating to the sampledata route, let's verify that the documents were created in DocumentDB. In the Azure Portal, navigate to the Resource Group blade and select the DocumentDB resource.
 
-    ![image](./media/image-06.png)
+    ![image](./media/image-06.gif)
 
     Select the DocumentDB database. This will open the DocumentDB blade. Scroll to the Collections section.
     
-    ![image](./media/image-07.png)
+    ![image](./media/image-07.gif)
 
     In the Collections section, select **Document Explorer**.
 
-    ![image](./media/image-08.png)
+    ![image](./media/image-08.gif)
 
     The Document Explorer is an easy way to view the documents inside of a collection via the browser. Select the first record to see the JSON body of the document.
 
-    ![image](./media/image-09.png)
+    ![image](./media/image-09.gif)
 
     We can see that several incidents have been created and are now available to the API.
 
 1. Go back to Visual Studio
+
 1. Open the Dashboard view page
 
-![image](./media/image-24.png)
+    ![image](./media/image-24.gif)
 
 1. On the Dashboard page, notice how the sample incidents are stubbed in between the  `<!--TEMPLATE CODE -->` comment block.   
 
-    ![image](./media/image-10.png)
+    ![image](./media/image-10.gif)
 
     As part of the original ARM template we deployed an ASP.NET WebAPI that queries a DocumentDB Collection. Let's integrate that API so that the incidents are dynamically pulled from a data store.
 1. In Visual Studio, select the code between the `<!--TEMPLATE CODE -->` comment block and delete it.
+
 1. Between the `<!--INSERT VIEW CODE -->` comment block paste the following. This block handles the display of the incident dashboard:
 
     ```csharp
@@ -148,7 +162,7 @@ This hands-on-lab has the following exercises:
 
 1. We need to add a reference to the Web API project. Get the URL by navigating to Azure and copying from the settings
     
-    ![image](./media/image-11.png)
+    ![image](./media/image-11.gif)
 
 1. Copy the URL of the API app to the clipboard
 1. Add the URL to the 'INCIDENT_API_URL' setting in the `web.config`
@@ -160,16 +174,19 @@ This hands-on-lab has the following exercises:
     >the URL should not have a `/` on the end.
 1. In Visual Studio, select the project and right-click.
 
-    ![image](./media/image-12.png)
+    ![image](./media/image-12.gif)
 
 1. Select Add > Rest API client
 1. In the Swagger URL field paste the value for the `INCIDENT_API_URL`
 1. Append `/swagger/docs/v1` to the URL
 1. For the Client Namespace, enter **IncidentAPI** and click OK. This will download the definition for the API and install nuget packages for Microsoft.Rest. It will also create the IncidentAPI client proxy classes and models.
 
-    ![image](./media/image-13.png)
+    ![image](./media/image-13.gif)
+
+    > DO NOT Update the Nuget package for Microsoft.REST
 
 1. In the Utils folder, open the file called Settings.cs. This will hold our static variables and constants for the application.
+
 1. In the Settings.cs file, paste the following inside the Settings class definition:
 
     ```csharp
@@ -192,10 +209,11 @@ This hands-on-lab has the following exercises:
 
 1. Resolve the reference for `System.Configuration`
 
-    ![image](./media/image-14.png)
+    ![image](./media/image-14.gif)
 
-1. In the Utils folder, there is a class named IncidentApiHelper.cs. Open this file.
-1. Paste the following inside the IncidentApiHelper class definition and resolve the reference for `IncidentAPI`.
+1. In the `Utils` folder, there is a file named `IncidentApiHelper.cs`. Open this file.
+
+1. Paste the following inside the `IncidentApiHelper` class definition and resolve the reference for `IncidentAPI`.
 
     ```csharp
     public static IncidentAPIClient GetIncidentAPIClient()
@@ -206,7 +224,9 @@ This hands-on-lab has the following exercises:
     ```
 
 1. Open the `Controllers/Dashboardcontroller.cs` file
+
 1. Select the current comment block in the Index method and delete it. Also delete the existing return View() code.
+
 1. Paste the following:
 
     ```csharp
@@ -221,7 +241,8 @@ This hands-on-lab has the following exercises:
     //##### API DATA HERE #####
     ```
 
-1. Resolve the references for `Newtonsoft.Json, IncidentAPI, IncidentAPI.Models and System.Collections.Generic`
+1. Resolve the references for `Newtonsoft.Json, IncidentAPI, IncidentAPI.Models and System.Collections.Generic`. Make sure you have also added the IncidentAPI namespace, as  GetIAllIncidentsAsync() is an extension method which cannot be resolved automatically.
+
 1. Change the method to async. The code should look like the following:
 
     ```csharp
@@ -252,8 +273,10 @@ This hands-on-lab has the following exercises:
         }
     ```
 
-1. Let's add code to view Incidents. Navigate to the IncidentController.cs file and open it
+1. Let's add code to view Incidents. Navigate to the `IncidentController.cs` file and open it
+
 1. In between the comment block in the Details method, select the body of this method and delete it.
+
 1. Paste the following:
 
     ```csharp
@@ -271,7 +294,8 @@ This hands-on-lab has the following exercises:
 
         return View(incidentView);
     ```
-1. In the Mappers Folder, locate the IncidentMapper.cs file. This file will handle the mapping from the data that is returned from the API.
+1. In the `Mappers` Folder, locate the `IncidentMapper.cs` file. This file will handle the mapping from the data that is returned from the API.
+
 1. Open it and paste the following:
     
     ```csharp
@@ -315,6 +339,7 @@ This hands-on-lab has the following exercises:
     ```
 
 1. Resolve the references for `DevCamp.WebApp.Mappers, DevCamp.WebApp.Utils, DevCamp.WebApp.ViewModelsIncidentAPI, IncidentAPI.Models and Newtonsoft.Json`.
+
 1. Now let's add code to create an incident. We will add a new `Create` method to the `IncidentController` class that will handle the Create HTTP post method. Add the following code:
 
     > DO NOT delete the existing `Create` Method. This is the method that handles the default view.
@@ -351,9 +376,10 @@ This hands-on-lab has the following exercises:
     ```
 
 1. Resolve the references for `system.threading.task and system.web`
+
 1. Build the application and hit F5 to start debugging. On the home page, click on the view dashboard link. You should see a list of the sample incidents you generated in the database.
 
-    ![image](./media/image-15.png)
+    ![image](./media/image-15.gif)
 
 ---
 ## Exercise 2: Add a caching layer
@@ -367,15 +393,15 @@ We deployed an instance of Azure Redis Cache in the ARM Template, but need to ad
 
  First, let's add our Redis information to local environment variables. In the [Azure Portal](https://portal.azure.com) navigate to the Resource Group and select the Redis instance.
 
-![image](./media/image-16.png)
+![image](./media/image-16.gif)
 
 On the Redis blade, note the **Host Name**, then select the **key icon** and note the **Primary Key**.
 
-![image](./media/image-17.png)
+![image](./media/image-17.gif)
 
 On the Redis blade, expand **Ports* and note the Non-SSL port 6379 and SSL Port of 6380.
 
-![image](./media/image-18.png)
+![image](./media/image-18.gif)
 
 1. In Visual Studio, open `web.config` and locate the four variables for `REDISCACHE_HOSTNAME`, `REDISCACHE_PRIMARY_KEY`, `REDISCACHE_PORT`, and `REDISCACHE_SSLPORT`
 
@@ -390,15 +416,27 @@ On the Redis blade, expand **Ports* and note the Non-SSL port 6379 and SSL Port 
 
 1. In Visual Studio, Right click on the project and select Manage Nuget packages
 
-    ![image](./media/image-19.png)
+    ![image](./media/image-19.gif)
 
 1. Add the Microsoft.Extensions.Caching.Redis package by highlighting the name and selecting install
 
-    ![image](./media/image-20.png)
+    ![image](./media/image-20.gif)
 
 1. Accept the License to complete the install
-1. In Azure. navigate to the application settings for the IncidentAPI application
-1. In Visual Studio, navigate to the web.config and copy/paste the values from the app settings 
+
+1. In Azure, navigate to the `dotnet...` web application in your resource group.
+
+    ![image](./media/image-25.gif)
+
+1. Navigate to the application settings
+
+    ![image](./media/image-26.gif)
+
+1. App Settings Keys have values pre-populated with the values required to consume the Azure services.
+
+    ![image](./media/image-27.gif)
+
+1. In Visual Studio, navigate to the web.config and copy/paste the values from the app settings that match the keys 
 
     ```xml
     <add key="REDISCACHE_HOSTNAME" value="" />
@@ -522,11 +560,11 @@ When a new incident is reported, the user can attach a photo.  In this exercise 
 
     > The other storage accounts are used for diagnostics data and virtual machine disks
 
-    ![image](./media/image-21.png)
+    ![image](./media/image-21.gif)
 
     Select **Access Keys** and note the **key1** for the storage account.
 
-    ![image](./media/image-22.png)
+    ![image](./media/image-22.gif)
 
 1. Update the web.config with the following values from the Azure storage account:
 
@@ -551,9 +589,10 @@ When a new incident is reported, the user can attach a photo.  In this exercise 
     <add key="REDISCACHE_PRIMARY_KEY" value=""/>
     ```
 1. Now that we configured the storage config values, we can add the logic to upload the images. 
+
 1. In Visual Studio, Add the `WindowsAzure.Storage` nuget package to the solution
 
-![image](./media/image-23.png)
+    ![image](./media/image-23.gif)
 
 1. Open the `Utils\StorageHelper.cs` file and paste the following:
 
@@ -670,8 +709,7 @@ When a new incident is reported, the user can attach a photo.  In this exercise 
 1. Close the browser and stop debugging.
 1. Open the Azure Storage Explorer, connect it to your storage account and verify that your image and a queue entry were uploaded to Azure storage.
 
-END
-
+---
 ## Summary
 
 In this hands-on lab, you learned how to:
